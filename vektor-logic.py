@@ -1,32 +1,35 @@
 import json
 import datetime
 
-def execute_vektor_audit():
-    # The PopeTroy Constants
-    SLOPE = 51.8
-    BRIDGE_HZ = 144000
+def run_surface_audit(surface_type="stone"):
+    # Resonant Coefficients (The Reverse Engineering Logic)
+    coefficients = {
+        "stone": 1.0,    # Perfect Reflection (51.8 locked)
+        "metal": 0.95,   # High Resonance
+        "wood": 0.72,    # Significant Drift
+        "glass": 0.88    # Tech-Layer interference
+    }
     
-    # Perform the "Resonant Calculation"
-    # In a real-world scenario, this could involve more complex signal processing
-    is_locked = (SLOPE == 51.8 and BRIDGE_HZ == 144000)
+    coeff = coefficients.get(surface_type.lower(), 0.5)
     
-    audit_result = {
-        "terminal_id": f"VEKTOR-POPETROY-{datetime.datetime.now().strftime('%M%S')}",
-        "version": "4.2.0_LIVE",
+    # Calculate Manifestation Accuracy
+    SLOPE_ACTUAL = 51.8 * coeff
+    is_perfect = (SLOPE_ACTUAL == 51.8)
+
+    audit_report = {
+        "terminal_id": f"VEKTOR-SURFACE-{surface_type.upper()}",
         "logic_gate": {
-            "slope_constant": SLOPE,
-            "bridge_frequency": BRIDGE_HZ,
-            "resonance_status": "LOCKED" if is_locked else "DRIFT",
-            "vail_transparency": "1.0" if is_locked else "0.0"
+            "surface_material": surface_type,
+            "calculated_slope": round(SLOPE_ACTUAL, 2),
+            "bridge_frequency": 144000 if is_perfect else int(144000 * coeff),
+            "resonance_status": "LOCKED" if is_perfect else "DRIFT"
         },
         "timestamp": datetime.datetime.utcnow().isoformat() + "Z"
     }
-    
-    # Overwrite the manifest with the NEW audited data
+
     with open('vektor-manifest.json', 'w') as f:
-        json.dump(audit_result, f, indent=2)
-    
-    print(f"Audit Complete: Resonance {'LOCKED' if is_locked else 'FAILED'}")
+        json.dump(audit_report, f, indent=2)
 
 if __name__ == "__main__":
-    execute_vektor_audit()
+    # Defaulting to Stone for the Giza Constant
+    run_surface_audit("stone")
