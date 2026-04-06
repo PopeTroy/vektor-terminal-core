@@ -1,0 +1,11 @@
+# System Metadata
+.DS_Store
+Thumbs.db
+
+# Development Environment
+.vscode/
+.idea/
+
+# Local Python Cache (for PRCE Audits)
+__pycache__/
+*.py[cod]
