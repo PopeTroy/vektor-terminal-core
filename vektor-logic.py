@@ -1,35 +1,56 @@
 import json
+import sys
 import datetime
 
-def run_surface_audit(surface_type="stone"):
-    # Resonant Coefficients (The Reverse Engineering Logic)
-    coefficients = {
-        "stone": 1.0,    # Perfect Reflection (51.8 locked)
-        "metal": 0.95,   # High Resonance
-        "wood": 0.72,    # Significant Drift
-        "glass": 0.88    # Tech-Layer interference
-    }
+def run_resonant_audit(avg_g_force):
+    """
+    UESP PRCE Surface Diagnostic
+    Thresholds:
+    - < 0.4G: DAMPENED (Hand/Soft)
+    - 0.4G - 1.2G: ABSORBED (Wood/Porous)
+    - > 1.2G: REFLECTED (Stone/Granite - Giza Constant)
+    """
+    g_force = float(avg_g_force)
     
-    coeff = coefficients.get(surface_type.lower(), 0.5)
-    
-    # Calculate Manifestation Accuracy
-    SLOPE_ACTUAL = 51.8 * coeff
-    is_perfect = (SLOPE_ACTUAL == 51.8)
+    # Logic to determine Surface Type and Slope
+    if g_force >= 1.2:
+        surface = "STONE"
+        slope = 51.8
+        status = "LOCKED"
+        hz = 144000
+    elif g_force >= 0.4:
+        surface = "WOOD"
+        slope = 32.4
+        status = "DRIFT"
+        hz = "UNSTABLE"
+    else:
+        surface = "SOFT/HAND"
+        slope = 0.0
+        status = "DAMPENED"
+        hz = "OFFLINE"
 
-    audit_report = {
-        "terminal_id": f"VEKTOR-SURFACE-{surface_type.upper()}",
-        "logic_gate": {
-            "surface_material": surface_type,
-            "calculated_slope": round(SLOPE_ACTUAL, 2),
-            "bridge_frequency": 144000 if is_perfect else int(144000 * coeff),
-            "resonance_status": "LOCKED" if is_perfect else "DRIFT"
+    audit_result = {
+        "terminal_id": f"VEKTOR-{surface}-{datetime.datetime.now().strftime('%M%S')}",
+        "operator": "PopeTroy",
+        "kinetic_data": {
+            "input_g_force": g_force,
+            "detected_surface": surface,
+            "vector_slope": slope
+        },
+        "resonance": {
+            "bridge_status": status,
+            "frequency_lock": hz
         },
         "timestamp": datetime.datetime.utcnow().isoformat() + "Z"
     }
 
+    # Write to the Manifest for the HUD to fetch
     with open('vektor-manifest.json', 'w') as f:
-        json.dump(audit_report, f, indent=2)
+        json.dump(audit_result, f, indent=2)
+    
+    print(f"Audit Complete: {surface} Detected | Status: {status}")
 
 if __name__ == "__main__":
-    # Defaulting to Stone for the Giza Constant
-    run_surface_audit("stone")
+    # Get G-force from GitHub Action argument
+    input_g = sys.argv[1] if len(sys.argv) > 1 else 0.0
+    run_resonant_audit(input_g)
