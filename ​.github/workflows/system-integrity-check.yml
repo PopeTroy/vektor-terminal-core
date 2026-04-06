@@ -1,13 +1,13 @@
-name: Vektor Real-Time Auditor
+name: Vektor Kinetic Auditor
 on:
   repository_dispatch:
     types: [vektor_audit_trigger]
 
 jobs:
-  run-prce-engine:
+  kinetic-process:
     runs-on: ubuntu-latest
     steps:
-      - name: Syncing Mega Circuit
+      - name: Syncing Super Circuit
         uses: actions/checkout@v3
 
       - name: Loading Python Environment
@@ -15,13 +15,14 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Executing PopeTroy Logic Engine
-        run: python vektor-logic.py
+      - name: Executing PRCE Surface Audit
+        # Accesses the 'avg_g' sent by the WordPress HUD
+        run: python vektor-logic.py ${{ github.event.client_payload.avg_g }}
 
-      - name: Committing Audited Results
+      - name: Committing Scientific Proof
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action [PRCE]"
           git add vektor-manifest.json
-          git commit -m "PopeTroy: [AUDIT VERIFIED] 144k Bridge Confirmed"
+          git commit -m "PopeTroy: [KINETIC AUDIT] Surface Verification Locked"
           git push
