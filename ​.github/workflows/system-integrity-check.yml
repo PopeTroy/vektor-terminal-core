@@ -1,0 +1,14 @@
+name: Vektor Logic Heartbeat
+on: [push]
+
+jobs:
+  integrity-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Verify 144k Bridge Logic
+        run: |
+          echo "Auditing PopeTroy's PRCE Logic..."
+          grep -q "144000" vektor-logic-manifest.json && echo "Resonance: LOCKED" || exit 1
