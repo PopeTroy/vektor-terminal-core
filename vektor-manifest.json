@@ -1,0 +1,11 @@
+{
+  "terminal_id": "VEKTOR-POPETROY-01",
+  "version": "4.2.0",
+  "logic_gate": {
+    "slope_constant": 51.8,
+    "bridge_frequency": 144000,
+    "resonance_status": "LOCKED",
+    "vail_transparency": "1.0"
+  },
+  "timestamp": "2026-04-06T18:00:00Z"
+}
