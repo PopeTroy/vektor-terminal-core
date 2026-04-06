@@ -4,22 +4,24 @@ on:
     types: [vektor_audit_trigger]
 
 jobs:
-  execute-prce:
+  run-prce-engine:
     runs-on: ubuntu-latest
     steps:
       - name: Syncing Mega Circuit
         uses: actions/checkout@v3
 
-      - name: Loading Logic
-        run: |
-          echo "PopeTroy: Initiating Real-Time Resonant Audit..."
-          # This command updates the timestamp to prove the audit is LIVE
-          sed -i "s/\"timestamp\": \".*\"/\"timestamp\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"/" vektor-manifest.json
-          
-      - name: Finalizing Audit
+      - name: Loading Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Executing PopeTroy Logic Engine
+        run: python vektor-logic.py
+
+      - name: Committing Audited Results
         run: |
           git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.name "GitHub Action [PRCE]"
           git add vektor-manifest.json
-          git commit -m "PopeTroy: [AUDIT LOCKED] 144k Bridge Verified"
+          git commit -m "PopeTroy: [AUDIT VERIFIED] 144k Bridge Confirmed"
           git push
