@@ -16,7 +16,7 @@ jobs:
           python-version: '3.9'
 
       - name: Executing PRCE Surface Audit
-        # Accesses the 'avg_g' sent by the WordPress HUD
+        # Pass the G-force from the HUD to the Python script
         run: python vektor-logic.py ${{ github.event.client_payload.avg_g }}
 
       - name: Committing Scientific Proof
@@ -24,5 +24,6 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action [PRCE]"
           git add vektor-manifest.json
-          git commit -m "PopeTroy: [KINETIC AUDIT] Surface Verification Locked"
-          git push
+          # Force a commit even if data is similar to trigger the HUD poll
+          git commit -m "PopeTroy: [KINETIC AUDIT] $(date)" || echo "No changes"
+          git push origin main
