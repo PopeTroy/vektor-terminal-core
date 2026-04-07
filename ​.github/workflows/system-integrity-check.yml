@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Syncing Super Circuit
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Loading Python
         uses: actions/setup-python@v4
@@ -24,6 +26,8 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action [PRCE]"
+          # Create the file if it somehow doesn't exist
+          touch vektor-manifest.json
           git add vektor-manifest.json
-          git commit -m "PopeTroy: [KINETIC AUDIT] $(date)" || echo "No changes"
+          git commit -m "PopeTroy: [KINETIC AUDIT] $(date)" || echo "No changes to commit"
           git push origin main
