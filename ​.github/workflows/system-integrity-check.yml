@@ -14,20 +14,26 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Loading Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
       - name: Executing PRCE Surface Audit
-        run: python vektor-logic.py ${{ github.event.client_payload.avg_g }}
+        # We pass the G-force directly from the WordPress Trigger
+        run: |
+          python -c "
+          import json, sys, datetime
+          g = float('${{ github.event.client_payload.avg_g }}')
+          surface, slope, status, hz = ('STONE', 51.8, 'LOCKED', 144000) if g >= 1.2 else ('WOOD', 32.4, 'DRIFT', 0) if g >= 0.4 else ('SOFT', 0.0, 'DAMPENED', 0)
+          data = {
+              'terminal_id': 'VEKTOR-'+surface,
+              'kinetic_data': {'input_g_force': str(g), 'detected_surface': surface, 'vector_slope': slope},
+              'resonance': {'bridge_status': status, 'frequency_lock': hz},
+              'timestamp': datetime.datetime.utcnow().isoformat()
+          }
+          with open('vektor-manifest.json', 'w') as f: json.dump(data, f)
+          "
 
-      - name: Force Update Manifest
+      - name: Committing Scientific Proof
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action [PRCE]"
-          # Create the file if it somehow doesn't exist
-          touch vektor-manifest.json
           git add vektor-manifest.json
-          git commit -m "PopeTroy: [KINETIC AUDIT] $(date)" || echo "No changes to commit"
+          git commit -m "PopeTroy: [KINETIC AUDIT] $(date)" || echo "No changes"
           git push origin main
