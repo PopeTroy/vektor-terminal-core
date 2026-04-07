@@ -1,7 +1,7 @@
 name: Vektor Kinetic Auditor
 on:
   repository_dispatch:
-    types: [vektor_audit_trigger]
+    types: [vektor_audit_trigger] # This MUST be exact
 
 jobs:
   kinetic-process:
@@ -11,29 +11,21 @@ jobs:
     steps:
       - name: Syncing Super Circuit
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
-      - name: Executing PRCE Surface Audit
-        # We pass the G-force directly from the WordPress Trigger
+      - name: PRCE Calculation
         run: |
           python -c "
-          import json, sys, datetime
+          import json, datetime
           g = float('${{ github.event.client_payload.avg_g }}')
           surface, slope, status, hz = ('STONE', 51.8, 'LOCKED', 144000) if g >= 1.2 else ('WOOD', 32.4, 'DRIFT', 0) if g >= 0.4 else ('SOFT', 0.0, 'DAMPENED', 0)
-          data = {
-              'terminal_id': 'VEKTOR-'+surface,
-              'kinetic_data': {'input_g_force': str(g), 'detected_surface': surface, 'vector_slope': slope},
-              'resonance': {'bridge_status': status, 'frequency_lock': hz},
-              'timestamp': datetime.datetime.utcnow().isoformat()
-          }
-          with open('vektor-manifest.json', 'w') as f: json.dump(data, f)
+          with open('vektor-manifest.json', 'w') as f:
+              json.dump({'kinetic_data': {'input_g_force': str(g), 'detected_surface': surface, 'vector_slope': slope}, 'resonance': {'bridge_status': status, 'frequency_lock': hz}, 'timestamp': datetime.datetime.utcnow().isoformat()}, f)
           "
 
-      - name: Committing Scientific Proof
+      - name: Committing Proof
         run: |
           git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action [PRCE]"
+          git config --local user.name "PRCE-Bot"
           git add vektor-manifest.json
-          git commit -m "PopeTroy: [KINETIC AUDIT] $(date)" || echo "No changes"
+          git commit -m "Update Manifest" || exit 0
           git push origin main
