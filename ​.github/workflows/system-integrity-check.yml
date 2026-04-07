@@ -7,14 +7,12 @@ jobs:
   kinetic-process:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Force explicit write access
+      contents: write
     steps:
       - name: Syncing Super Circuit
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }} # Use internal token for higher priority
 
-      - name: Loading Python Environment
+      - name: Loading Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
@@ -22,11 +20,10 @@ jobs:
       - name: Executing PRCE Surface Audit
         run: python vektor-logic.py ${{ github.event.client_payload.avg_g }}
 
-      - name: Committing Scientific Proof
+      - name: Force Update Manifest
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action [PRCE]"
           git add vektor-manifest.json
-          # Force the commit with a unique timestamp to ensure the hash changes
-          git commit -m "PopeTroy: [KINETIC AUDIT] $(date +'%H:%M:%S')" || exit 0
+          git commit -m "PopeTroy: [KINETIC AUDIT] $(date)" || echo "No changes"
           git push origin main
