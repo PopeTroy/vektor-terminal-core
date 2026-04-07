@@ -48,3 +48,4 @@ def run_resonant_audit(avg_g_force):
 if __name__ == "__main__":
     input_g = sys.argv[1] if len(sys.argv) > 1 else 0.0
     run_resonant_audit(input_g)
+.
